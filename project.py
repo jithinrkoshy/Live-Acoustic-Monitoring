@@ -15,28 +15,38 @@ import matplotlib.pyplot as plt
 from glob import glob
 import IPython.display as ipd
 
-audio_files = glob("./gunshot/*.wav")
+audio_files = glob("../gunshot/*.wav")
 len(audio_files)
 for i in range(len(audio_files)):
-  audio,sr = lr.load(audio_files[i])
+  audio,sr = lr.load(audio_files[i], duration=1.0)
+  #lr.output.write_wav("../gunshotimg/aud"+str(i)+".wav",audio,sr)
   time = np.arange(0,len(audio))/sr
-  n_fft = 1024
-  f=20
-  x=np.sin(2*pi*f*time)
-#  plt.subplot(2,1,1)
-#  plt.plot(time,audio)
-#  plt.xlabel("Time(s)")
- # plt.ylabel("Amplitude")
-  n=np.size(time)
-  fr = (sr/2)*np.linspace(0,1,n/2)
-  X = fft(audio)
-  X_m = (2/n)*abs(X[0:np.size(fr)])
-  plt.subplot(2,1,1)
-  plt.plot(fr,X_m)
-  plt.xlabel("Frequency")
-  plt.ylabel("Amplitude")
+  S = lr.feature.melspectrogram(y=audio, sr=sr, n_mels=128,
+                                    fmax=(sr/2))
+
+  plt.figure(figsize=(10, 4))
+  S_dB = lr.power_to_db(S, ref=np.max)
+  lr.display.specshow(S_dB, x_axis='time',y_axis='mel', sr=sr,fmax=(sr/2))
   plt.tight_layout()
   plt.axis('off')
-  plt.savefig("./gunshotimg/fft"+str(i)+".png",bbox_inches='tight')
+  plt.savefig("../gunshotimg/mel"+str(i)+".png",dpi=1000,bbox_inches='tight')
+  #plt.show()
   plt.close()
 
+#ELEPHANT SOUND
+audio_files = glob("../elephant/*.wav")
+len(audio_files)
+for i in range(len(audio_files)):
+  audio,sr = lr.load(audio_files[i], duration=2.0)
+  time = np.arange(0,len(audio))/sr
+  S = lr.feature.melspectrogram(y=audio, sr=sr, n_mels=128,
+                                    fmax=(sr/2))
+
+  plt.figure(figsize=(10, 4))
+  S_dB = lr.power_to_db(S, ref=np.max)
+  lr.display.specshow(S_dB, x_axis='time',y_axis='mel', sr=sr,fmax=(sr/2))
+  plt.tight_layout()
+  plt.axis('off')
+  plt.savefig("../elephantimg/mel"+str(i)+".png",dpi=1000,bbox_inches='tight')
+  #plt.show()
+  plt.close()
